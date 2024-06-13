@@ -254,7 +254,9 @@ connection = at
 
     logging.info('Gammu initialized')
 
-    client = mqtt.Client(mqttclientid)
+    # https://stackoverflow.com/a/77985329
+    # client = mqtt.Client(mqttclientid)
+    client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION1, mqttclientid)
     client.username_pw_set(mqttuser, mqttpassword)
     client.on_connect = on_mqtt_connect
     client.on_disconnect = on_mqtt_disconnect
