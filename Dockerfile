@@ -1,4 +1,4 @@
-FROM python:3.12-alpine3.19
+FROM python:3.12-alpine3.21
 
 RUN apk add --no-cache gammu-dev tzdata
 
