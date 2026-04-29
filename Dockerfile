@@ -1,13 +1,20 @@
-FROM python:3.12-alpine3.21
+# ── Stage 1: build ──────────────────────────────────────────────────────────
+FROM python:3.13-alpine3.23 AS builder
 
-RUN apk add --no-cache gammu-dev tzdata
+RUN apk add --no-cache gammu-dev gcc musl-dev pkgconf
 
-RUN apk add --no-cache --virtual .build-deps gcc musl-dev \
-     && pip install python-gammu paho-mqtt \
-     && apk del .build-deps gcc musl-dev
+RUN pip install --no-cache-dir setuptools && \
+    pip install --no-cache-dir --prefix=/install --no-build-isolation \
+    "python-gammu==3.2.5" paho-mqtt
+
+# ── Stage 2: runtime ─────────────────────────────────────────────────────────
+FROM python:3.13-alpine3.23
+
+RUN apk add --no-cache gammu tzdata
+
+COPY --from=builder /install /usr/local
 
 WORKDIR /app
-
 COPY sms2mqtt.py .
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
