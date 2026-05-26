@@ -15,7 +15,7 @@ def on_mqtt_connect(client, userdata, flags, reasonCode, properties=None):
     client.subscribe(f"{mqttprefix}/send")
 
 # callback when the client disconnects from the broker.
-def on_mqtt_disconnect(client, userdata, reasonCode, properties=None):
+def on_mqtt_disconnect(client, userdata, disconnect_flags, reasonCode, properties=None):
     logging.info("Disconnected from MQTT host")
     logging.info("Exit")
     exit()
