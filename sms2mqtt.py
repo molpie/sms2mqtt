@@ -14,11 +14,17 @@ def on_mqtt_connect(client, userdata, flags, reasonCode, properties=None):
     client.publish(f"{mqttprefix}/connected", "1", 0, True)
     client.subscribe(f"{mqttprefix}/send")
 
+# set to True by on_mqtt_disconnect so the main loop can exit cleanly.
+# Calling exit() (SystemExit) from inside a paho callback is not safe: the
+# library only catches Exception, so SystemExit propagates through loop() and
+# crashes the process with a traceback.
+should_exit = False
+
 # callback when the client disconnects from the broker.
 def on_mqtt_disconnect(client, userdata, disconnect_flags, reasonCode, properties=None):
     logging.info("Disconnected from MQTT host")
-    logging.info("Exit")
-    exit()
+    global should_exit
+    should_exit = True
 
 # callback when a message has been received on a topic that the client subscribes to.
 def on_mqtt_message(client, userdata, message):
@@ -274,4 +280,6 @@ connection = at
         if heartbeat:
             get_datetime()
         client.loop()
+        if should_exit:
+            break
 
